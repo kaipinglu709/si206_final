@@ -7,6 +7,7 @@ import os
 CLIENT_ID = '67285455157c4514a30970aee1cb0331'
 CLIENT_SECRET = '2d75abacd62f4139aed9780b61078c5b'
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'database.db')
+BASE_URL = 'https://api.spotify.com/v1/'
 
 def authenticate_spotify():
     token_url = 'https://accounts.spotify.com/api/token'
@@ -16,52 +17,46 @@ def authenticate_spotify():
     }
     data = {'grant_type': 'client_credentials'}
     response = requests.post(token_url, headers=headers, data=data)
-    return response.json()['access_token'] if response.status_code == 200 else None
+    return response.json().get('access_token') if response.status_code == 200 else None
 
-def get_user_playlists(access_token):
-    playlists_url = 'https://api.spotify.com/v1/me/playlists'
-    headers = {'Authorization': 'Bearer ' + access_token}
-    response = requests.get(playlists_url, headers=headers)
-    return response.json()['items'] if response.status_code == 200 else []
+def get_featured_playlists(access_token):
+    featured_playlists_url = f'{BASE_URL}browse/featured-playlists'
+    headers = {'Authorization': f'Bearer {access_token}'}
+    response = requests.get(featured_playlists_url, headers=headers)
+    if response.status_code == 200:
+        return response.json()['playlists']['items']
+    else:
+        print(f"Error fetching playlists: {response.json().get('error', {}).get('message', '')}")
+        return []
 
 def get_playlist_tracks(access_token, playlist_id):
-    playlist_tracks_url = f'https://api.spotify.com/v1/playlists/{playlist_id}/tracks'
-    headers = {'Authorization': 'Bearer ' + access_token}
+    playlist_tracks_url = f"{BASE_URL}playlists/{playlist_id}/tracks"
+    headers = {'Authorization': f'Bearer {access_token}'}
     response = requests.get(playlist_tracks_url, headers=headers)
-    return [track['track'] for track in response.json()['items']] if response.status_code == 200 else []
+    if response.status_code == 200:
+        return [track['track'] for track in response.json()['items'] if track.get('track')]
+    else:
+        print(f"Failed to retrieve tracks for playlist {playlist_id}. Status code: {response.status_code}")
+        return []
 
 def setup_database():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS playlists (
-            id TEXT PRIMARY KEY,
-            name TEXT,
-            owner TEXT
-        );
-    ''')
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS tracks (
-            id TEXT PRIMARY KEY,
-            name TEXT,
-            artist TEXT,
-            playlist_id TEXT,
-            FOREIGN KEY(playlist_id) REFERENCES playlists(id)
-        );
-    ''')
+    c.execute("CREATE TABLE IF NOT EXISTS playlists (id TEXT PRIMARY KEY, name TEXT);")
+    c.execute("CREATE TABLE IF NOT EXISTS tracks (id TEXT PRIMARY KEY, name TEXT, artist TEXT, playlist_id TEXT, FOREIGN KEY(playlist_id) REFERENCES playlists(id));")
     conn.commit()
     conn.close()
 
-def insert_data(access_token, playlists):
+def insert_data(access_token):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
+    playlists = get_featured_playlists(access_token)
     for playlist in playlists:
-        c.execute('INSERT OR IGNORE INTO playlists (id, name, owner) VALUES (?, ?, ?)',
-                  (playlist['id'], playlist['name'], playlist['owner']['id']))
+        c.execute('INSERT OR IGNORE INTO playlists (id, name) VALUES (?, ?)', (playlist['id'], playlist['name']))
         tracks = get_playlist_tracks(access_token, playlist['id'])
         for track in tracks:
             c.execute('INSERT OR IGNORE INTO tracks (id, name, artist, playlist_id) VALUES (?, ?, ?, ?)',
-                      (track['id'], track['name'], track['artists'][0]['name'], playlist['id']))
+                      (track['id'], track['name'], track['artists'][0]['name'] if track['artists'] else "Unknown", playlist['id']))
     conn.commit()
     conn.close()
 
@@ -69,10 +64,6 @@ if __name__ == '__main__':
     setup_database()
     access_token = authenticate_spotify()
     if access_token:
-        playlists = get_user_playlists(access_token)
-        if playlists:
-            insert_data(access_token, playlists)
-        else:
-            print("No playlists found")
+        insert_data(access_token)
     else:
         print("Failed to authenticate with Spotify")
