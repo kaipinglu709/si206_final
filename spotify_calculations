@@ -1,0 +1,41 @@
+import sqlite3
+import matplotlib.pyplot as plt
+import os
+
+# Database path
+DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'database.db')
+
+def fetch_unique_artists_per_playlist():
+    """ Fetches the count of unique artists per playlist from the database. """
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    query = '''
+    SELECT playlist_name, COUNT(DISTINCT artist) AS unique_artists_count
+    FROM playlist_tracks
+    GROUP BY playlist_name;
+    '''
+    cursor.execute(query)
+    results = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return results
+
+def plot_unique_artists_per_playlist(data):
+    """ Plots the number of unique artists per playlist using Matplotlib. """
+    playlists = [x[0] for x in data]  # Playlist names
+    counts = [x[1] for x in data]  # Unique artists count
+
+    plt.figure(figsize=(10, 8))
+    plt.barh(playlists, counts, color='skyblue')
+    plt.xlabel('Number of Unique Artists')
+    plt.ylabel('Playlists')
+    plt.title('Unique Artists Per Playlist')
+    plt.tight_layout()
+    plt.show()
+
+if __name__ == '__main__':
+    data = fetch_unique_artists_per_playlist()
+    if data:
+        plot_unique_artists_per_playlist(data)
+    else:
+        print("No data available to plot.")
