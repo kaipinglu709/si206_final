@@ -1,16 +1,16 @@
 import sqlite3
 import matplotlib.pyplot as plt
 import os
+import numpy as np
 
-# Database path
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'database.db')
 
-def fetch_unique_artists_per_playlist():
-    """ Fetches the count of unique artists per playlist from the database. """
+def fetch_playlist_data():
+    """ Fetches the count of unique artists and total tracks per playlist from the database. """
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     query = '''
-    SELECT playlist_name, COUNT(DISTINCT artist) AS unique_artists_count
+    SELECT playlist_name, COUNT(DISTINCT artist) AS unique_artists_count, COUNT(*) AS total_tracks
     FROM playlist_tracks
     GROUP BY playlist_name;
     '''
@@ -20,22 +20,47 @@ def fetch_unique_artists_per_playlist():
     conn.close()
     return results
 
-def plot_unique_artists_per_playlist(data):
-    """ Plots the number of unique artists per playlist using Matplotlib. """
+def plot_data(data):
+    """ Plots the number of unique artists and total tracks per playlist using Matplotlib. """
     playlists = [x[0] for x in data]  # Playlist names
-    counts = [x[1] for x in data]  # Unique artists count
+    unique_artists_counts = [x[1] for x in data]  # Unique artists counts
+    total_tracks_counts = [x[2] for x in data]  # Total tracks counts
 
-    plt.figure(figsize=(10, 8))
-    plt.barh(playlists, counts, color='skyblue')
-    plt.xlabel('Number of Unique Artists')
-    plt.ylabel('Playlists')
-    plt.title('Unique Artists Per Playlist')
-    plt.tight_layout()
+    x = np.arange(len(playlists))  # Label locations
+    width = 0.35  # The width of the bars
+
+    fig, ax = plt.subplots(figsize=(12, 8))
+    rects1 = ax.bar(x - width/2, unique_artists_counts, width, label='Unique Artists')
+    rects2 = ax.bar(x + width/2, total_tracks_counts, width, label='Total Tracks')
+
+    # Add some text for labels, title, and custom x-axis tick labels, etc.
+    ax.set_xlabel('Playlists')
+    ax.set_ylabel('Counts')
+    ax.set_title('Comparison of Unique Artists and Total Tracks Per Playlist')
+    ax.set_xticks(x)
+    ax.set_xticklabels(playlists, rotation=45, ha="right")
+    ax.legend()
+
+    # Attach a text label above each bar in rects, displaying its height.
+    def autolabel(rects):
+        for rect in rects:
+            height = rect.get_height()
+            ax.annotate('{}'.format(height),
+                        xy=(rect.get_x() + rect.get_width() / 2, height),
+                        xytext=(0, 3),  # 3 points vertical offset
+                        textcoords="offset points",
+                        ha='center', va='bottom')
+
+    autolabel(rects1)
+    autolabel(rects2)
+
+    fig.tight_layout()
     plt.show()
 
 if __name__ == '__main__':
-    data = fetch_unique_artists_per_playlist()
+    data = fetch_playlist_data()
     if data:
-        plot_unique_artists_per_playlist(data)
+        plot_data(data)
     else:
         print("No data available to plot.")
+ 
