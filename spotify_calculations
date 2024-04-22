@@ -33,7 +33,6 @@ def plot_data(data):
     rects1 = ax.bar(x - width/2, unique_artists_counts, width, label='Unique Artists')
     rects2 = ax.bar(x + width/2, total_tracks_counts, width, label='Total Tracks')
 
-    # Add some text for labels, title, and custom x-axis tick labels, etc.
     ax.set_xlabel('Playlists')
     ax.set_ylabel('Counts')
     ax.set_title('Comparison of Unique Artists and Total Tracks Per Playlist')
@@ -41,7 +40,6 @@ def plot_data(data):
     ax.set_xticklabels(playlists, rotation=45, ha="right")
     ax.legend()
 
-    # Attach a text label above each bar in rects, displaying its height.
     def autolabel(rects):
         for rect in rects:
             height = rect.get_height()

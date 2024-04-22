@@ -47,23 +47,65 @@ def setup_database():
     conn.commit()
     conn.close()
 
-def insert_data(access_token):
+def insert_playlists(access_token):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     playlists = get_featured_playlists(access_token)
+
     for playlist in playlists:
         c.execute('INSERT OR IGNORE INTO playlists (id, name) VALUES (?, ?)', (playlist['id'], playlist['name']))
-        tracks = get_playlist_tracks(access_token, playlist['id'])
-        for track in tracks:
-            c.execute('INSERT OR IGNORE INTO tracks (id, name, artist, playlist_id) VALUES (?, ?, ?, ?)',
-                      (track['id'], track['name'], track['artists'][0]['name'] if track['artists'] else "Unknown", playlist['id']))
+    
     conn.commit()
     conn.close()
+    print("Playlists inserted successfully.")
+
+def insert_tracks(access_token):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+
+    # Ensure the tracking table exists for tracks
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS track_insert_tracker (
+            id INTEGER PRIMARY KEY,
+            last_inserted_index INTEGER DEFAULT 0
+        )
+    ''')
+    c.execute('INSERT OR IGNORE INTO track_insert_tracker (id, last_inserted_index) VALUES (1, 0);')
+
+    # Get the last inserted index for tracks
+    c.execute('SELECT last_inserted_index FROM track_insert_tracker WHERE id = 1')
+    last_index = c.fetchone()[0]
+
+    playlists = get_featured_playlists(access_token)
+    track_count = 0
+
+    # Process tracks with a limit of 25 per run
+    while track_count < 25 and last_index < len(playlists):
+        playlist = playlists[last_index]
+        tracks = get_playlist_tracks(access_token, playlist['id'])
+        
+        for track in tracks:
+            if track_count >= 25:  # Limit to 25 tracks per run
+                break
+
+            c.execute('INSERT OR IGNORE INTO tracks (id, name, artist, playlist_id) VALUES (?, ?, ?, ?)',
+                      (track['id'], track['name'], track['artists'][0]['name'] if track['artists'] else "Unknown", playlist['id']))
+            track_count += 1
+
+        last_index += 1  
+
+    c.execute('UPDATE track_insert_tracker SET last_inserted_index = ? WHERE id = 1', (last_index,))
+
+    conn.commit()
+    conn.close()
+    print(f"Inserted {track_count} tracks in this run. Total tracks inserted so far: {last_index * 25}.")
+
 
 if __name__ == '__main__':
     setup_database()
     access_token = authenticate_spotify()
     if access_token:
-        insert_data(access_token)
+        insert_playlists(access_token) 
+        insert_tracks(access_token)    
     else:
         print("Failed to authenticate with Spotify")
