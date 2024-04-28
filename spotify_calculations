@@ -35,7 +35,7 @@ def plot_data(data):
 
     ax.set_xlabel('Playlists')
     ax.set_ylabel('Counts')
-    ax.set_title('Comparison of Unique Artists and Total Tracks Per Playlist')
+    ax.set_title('Comparison of Unique Artists and First 25 Tracks Per Playlist')
     ax.set_xticks(x)
     ax.set_xticklabels(playlists, rotation=45, ha="right")
     ax.legend()
