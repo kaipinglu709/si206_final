@@ -1,21 +1,21 @@
 Playlist Name,Unique Artists Count,Total Tracks Count
 90s Country,17,25
-All Out 80s,23,25
+All Out 80s,24,25
 Country Top 50,11,20
 Disney Hits,19,25
 Feelin' Myself,17,22
-Get Turnt,7,7
 Hot Country,24,24
 Hot Hits USA,10,11
 La Reina: Éxitos de la Música Mexicana,15,21
 Locked In,10,11
 Los Que Mandan - Música Mexicana,13,15
-New Music Friday,25,25
+New Music Friday,24,24
+Peaceful Piano,25,25
 RapCaviar,19,25
 Sleep,25,25
 This Is Taylor Swift,1,22
 Today’s Top Hits,23,25
-Viva Latino,23,24
+Viva Latino,23,25
 White Noise 10 Hours,24,25
 big on the internet,15,15
 phonk,20,25
