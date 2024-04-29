@@ -20,6 +20,14 @@ def fetch_playlist_data():
     conn.close()
     return results
 
+def write_calculations_to_file(data, file_path):
+    """ Writes the fetched data to a text file. """
+    with open(file_path, 'w') as file:
+        file.write("Playlist Name,Unique Artists Count,Total Tracks Count\n")
+        for item in data:
+            file.write(f"{item[0]},{item[1]},{item[2]}\n")
+
+
 def plot_data(data):
     """ Plots the number of unique artists and total tracks per playlist using Matplotlib. """
     playlists = [x[0] for x in data]  # Playlist names
@@ -58,6 +66,10 @@ def plot_data(data):
 if __name__ == '__main__':
     data = fetch_playlist_data()
     if data:
+        file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'spotify_calculations.txt')
+
+        write_calculations_to_file(data, file_path)
+
         plot_data(data)
     else:
         print("No data available to plot.")

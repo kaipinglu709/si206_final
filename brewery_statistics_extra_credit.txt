@@ -1,0 +1,49 @@
+State: Alabama, Number of Breweries: 1
+State: Alaska, Number of Breweries: 2
+State: Arizona, Number of Breweries: 4
+State: California, Number of Breweries: 21
+State: Colorado, Number of Breweries: 11
+State: Connecticut, Number of Breweries: 1
+State: Cork, Number of Breweries: 1
+State: Delaware, Number of Breweries: 3
+State: District of Columbia, Number of Breweries: 1
+State: Dublin, Number of Breweries: 1
+State: East Sussex, Number of Breweries: 1
+State: Florida, Number of Breweries: 12
+State: Georgia, Number of Breweries: 5
+State: Idaho, Number of Breweries: 2
+State: Illinois, Number of Breweries: 9
+State: Indiana, Number of Breweries: 5
+State: Iowa, Number of Breweries: 4
+State: Jeollabukdo, Number of Breweries: 1
+State: Kansas, Number of Breweries: 1
+State: Kentucky, Number of Breweries: 2
+State: Laois, Number of Breweries: 1
+State: Louisiana, Number of Breweries: 1
+State: Maine, Number of Breweries: 1
+State: Maryland, Number of Breweries: 2
+State: Massachusetts, Number of Breweries: 5
+State: Michigan, Number of Breweries: 5
+State: Minnesota, Number of Breweries: 5
+State: Mississippi, Number of Breweries: 1
+State: Missouri, Number of Breweries: 6
+State: Montana, Number of Breweries: 3
+State: Nevada, Number of Breweries: 2
+State: New Hampshire, Number of Breweries: 3
+State: New Jersey, Number of Breweries: 1
+State: New Mexico, Number of Breweries: 2
+State: New York, Number of Breweries: 10
+State: North Carolina, Number of Breweries: 6
+State: Ohio, Number of Breweries: 4
+State: Oklahoma, Number of Breweries: 1
+State: Oregon, Number of Breweries: 8
+State: Pennsylvania, Number of Breweries: 6
+State: South Carolina, Number of Breweries: 1
+State: South Dakota, Number of Breweries: 1
+State: Texas, Number of Breweries: 11
+State: Utah, Number of Breweries: 1
+State: Vermont, Number of Breweries: 2
+State: Virginia, Number of Breweries: 4
+State: Washington, Number of Breweries: 12
+State: West Sussex, Number of Breweries: 1
+State: Wisconsin, Number of Breweries: 6

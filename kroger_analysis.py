@@ -29,6 +29,12 @@ def count_stores_by_state():
     conn.close()
     return store_per_capita
 
+
+def write_calculated_data_to_file(data):
+    with open('kroger_calculations.txt', 'w') as file:
+        for state, value in data.items():
+            file.write(f"{state}: {value}\n")
+
 def visualize_data(data):
     states = list(data.keys())
     values = list(data.values())
@@ -41,6 +47,27 @@ def visualize_data(data):
     plt.tight_layout()
     plt.show()
 
+def visualize_pie_chart(data):
+    # Sort data by values and select the top 9 states
+    sorted_data = sorted(data.items(), key=lambda x: x[1], reverse=True)
+    top_states = sorted_data[:9]
+    other_value = sum([val for _, val in sorted_data[9:]])
+
+    states = [state for state, _ in top_states] + ['Other']
+    values = [value for _, value in top_states] + [other_value]
+
+    def custom_autopct(p):
+        return f'{p:.1f}%' if p >= 5 else ''
+
+    plt.figure(figsize=(10, 6))
+    plt.pie(values, labels=states, autopct=custom_autopct, startangle=140)
+    plt.title('Distribution of Kroger Stores by State (Top 9 States and Others)')
+    plt.axis('equal')  
+    plt.show()
+
+
 if __name__ == '__main__':
     calculated_data = count_stores_by_state()
+    write_calculated_data_to_file(calculated_data)
     visualize_data(calculated_data)
+    visualize_pie_chart(calculated_data)
